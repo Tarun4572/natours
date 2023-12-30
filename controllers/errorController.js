@@ -1,3 +1,16 @@
+const AppError = require('./../utils/appError');
+
+const handleCastErrorDB = err => {
+  const message = `Invalid ${err.path}: ${err.value}`;
+  return new AppError(message, 400);
+};
+
+const handleDuplicateFieldsDB = err => {
+  const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+  const message = `Duplicate Field Value: ${value}. Please use another value`;
+  return new AppError(message, 400);
+};
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -6,6 +19,12 @@ const sendErrorDev = (err, res) => {
     stack: err.stack
   });
 };
+
+const handleValidationErrorDB = err => {
+  const errors = Object.values(err.errors).map(el => el.message);
+  const message = `Invalid input data. ${errors.join('. ')}`;
+  return new AppError(message, 400);
+};
 const sendErrorProd = (err, res) => {
   // operational, trusted error: send message to client
   if (err.isOperational) {
@@ -13,7 +32,7 @@ const sendErrorProd = (err, res) => {
       status: err.status,
       message: err.message
     });
-    // programming or other unknonw error: don't leak error deatils
+    // programming or other unknown error: don't leak error deatils
   } else {
     //1) log error
     console.error('Error 🧨', err);
@@ -24,6 +43,7 @@ const sendErrorProd = (err, res) => {
     });
   }
 };
+
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
@@ -31,6 +51,16 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
-    sendErrorProd(err, res);
+    let error = { ...err };
+    if (error.name === 'CastError') {
+      error = handleCastErrorDB(err);
+    }
+    if (error.code === 11000) {
+      error = handleDuplicateFieldsDB(err);
+    }
+    if (error.name === 'ValidationError') {
+      error = handleValidationErrorDB(err);
+    }
+    sendErrorProd(error, res);
   }
 };

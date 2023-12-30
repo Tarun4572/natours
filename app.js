@@ -32,5 +32,6 @@ app.all('*', (req, res, next) => {
 });
 
 // ERROR handling MIDDLEWARE
+// when there is an error in the express middleware, it comes to erro handling middleware.
 app.use(globalErrorHandler);
 module.exports = app;
