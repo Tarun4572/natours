@@ -12,6 +12,35 @@ const signToken = id => {
   });
 };
 
+const createSendToken = (user, statusCode, res) => {
+  const token = signToken(user._id);
+
+  const cookieOptions = {
+    expiresIn: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    // secure: true, add this only in production
+    httpOnly: true
+  };
+
+  if (process.env.NODE_ENV === 'production') {
+    cookieOptions.secure = true;
+  }
+
+  res.cookie('jwt', token, cookieOptions);
+
+  //remove password from output
+  user.password = undefined;
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user
+    }
+  });
+};
+
 exports.signup = catchAsync(async (req, res, next) => {
   //   const newUser = await User.create(req.body);
   // security threat, user can send malicious data, so we need to take only required data
@@ -22,15 +51,16 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm
   });
 
-  const token = signToken(newUser._id);
+  createSendToken(newUser, 200, res);
+  // const token = signToken(newUser._id);
 
-  res.status(200).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser
-    }
-  });
+  // res.status(200).json({
+  //   status: 'success',
+  //   token,
+  //   data: {
+  //     user: newUser
+  //   }
+  // });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -47,11 +77,13 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('InCorrect Email or Password!', 401));
   }
   // 3) if everything ok, send token to client
-  const token = signToken(user._id);
-  res.status(200).json({
-    status: 'success',
-    token
-  });
+  createSendToken(user, 200, res);
+
+  // const token = signToken(user._id);
+  // res.status(200).json({
+  //   status: 'success',
+  //   token
+  // });
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -170,13 +202,14 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   // this time we want validator to validate whether passwordConfirm and password are same;
   await user.save();
   // 3) update changedpasswordAt property for the user
-  const token = signToken(user._id);
-
-  res.status(200).json({
-    status: 'Success',
-    token
-  });
   // 4) log the user in, send JWT
+  createSendToken(user, 200, res);
+  // const token = signToken(user._id);
+
+  // res.status(200).json({
+  //   status: 'Success',
+  //   token
+  // });
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -191,11 +224,12 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
   await user.save();
+  createSendToken(user, 200, res);
   //4) Log user in, send JWT
-  const token = signToken(user._id);
+  // const token = signToken(user._id);
 
-  res.status(200).json({
-    status: 'Success',
-    token
-  });
+  // res.status(200).json({
+  //   status: 'Success',
+  //   token
+  // });
 });

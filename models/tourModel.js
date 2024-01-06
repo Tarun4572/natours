@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const validator = require('validator');
+// const User = require('./userModel');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -10,8 +11,7 @@ const tourSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       maxLength: [40, 'A Tour must have less than or equal to 40 characters'],
-      minLength: [10, 'A Tour must have mpre than or equal to 10 characters'],
-      validate: [validator.isAlpha, 'Tour Name mush contain only characters']
+      minLength: [10, 'A Tour must have mpre than or equal to 10 characters']
     },
     slug: String,
     duration: {
@@ -78,7 +78,32 @@ const tourSchema = new mongoose.Schema(
       default: Date.now(),
       select: false
     },
-    startDates: [Date]
+    startDates: [Date],
+    startLocation: {
+      //GeoJson
+      type: {
+        type: String,
+        defaultL: 'Point',
+        enums: ['Point']
+      },
+      coordinates: [Number],
+      address: String,
+      description: String
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point']
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number
+      }
+    ],
+    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }]
   },
   {
     toJSON: { virtuals: true },
@@ -91,6 +116,13 @@ tourSchema.pre('save', function(next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
+
+// tourSchema.pre('save', function(next) {
+//   const guidePromises = this.guides.map(async id => await User.findById(id));
+//   this.guides = Promise.all(guidePromises);
+//   next();
+// });
+
 // tourSchema.post('save', function(doc, next) {
 //   console.log(doc);
 //   next();
@@ -101,6 +133,16 @@ tourSchema.pre('find', function(next) {
   this.find({ secretTour: { $ne: true } });
   next();
 });
+
+// populating before find calls
+tourSchema.pre('/^find/', function(next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v-passwordChangedAt'
+  });
+  next();
+});
+
 tourSchema.virtual('durationWeeks').get(function() {
   return this.duration / 7;
 });
