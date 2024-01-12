@@ -17,6 +17,9 @@ mongoose
   })
   .then(() => {
     console.log('DB Connection Successful');
+  })
+  .catch(err => {
+    console.log(err);
   });
 // .catch(err => console.log('DB Connection Error')); // handling DB connection error.
 // console.log(app.get('env')); // set by express

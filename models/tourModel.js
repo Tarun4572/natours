@@ -111,6 +111,19 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+tourSchema.virtual('durationWeeks').get(function() {
+  return this.duration / 7;
+});
+
+// virutal populate,
+// we could have array of reviews in tour but that array grows indefinitely and one more solution is to get reviews whenever tour is queried,
+// but both are not ideal solutions, mongoose has advanced concept added virual property
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id'
+});
+
 //DOCUMENT MIDDLEWARE: runs before .save() and .create()
 tourSchema.pre('save', function(next) {
   this.slug = slugify(this.name, { lower: true });
@@ -141,10 +154,6 @@ tourSchema.pre('/^find/', function(next) {
     select: '-__v-passwordChangedAt'
   });
   next();
-});
-
-tourSchema.virtual('durationWeeks').get(function() {
-  return this.duration / 7;
 });
 
 //AGGREGATIONG MIDDLEWARE:
