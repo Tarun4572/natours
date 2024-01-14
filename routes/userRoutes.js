@@ -6,7 +6,8 @@ const {
   deleteUser,
   createUser,
   updateMe,
-  deleteMe
+  deleteMe,
+  getMe
 } = require('../controllers/userController');
 const {
   signup,
@@ -14,7 +15,8 @@ const {
   forgotPassword,
   resetPassword,
   updatePassword,
-  protect
+  protect,
+  restrictTo
 } = require('../controllers/authController');
 
 const router = express.Router();
@@ -23,9 +25,19 @@ router.post('/signup', signup);
 router.post('/login', login);
 router.post('/forgotPassword', forgotPassword);
 router.patch('/resetPassword/:token', resetPassword);
-router.patch('/updateMyPassword', protect, updatePassword);
-router.patch('/updateMe', protect, updateMe);
-router.delete('/deleteMe', protect, deleteMe);
+
+router.use(protect);
+// below routes all need protect middleware, so declaring above all these routes because middleware run in sequencence
+// protect all routes after this middleware
+router.patch('/updateMyPassword', updatePassword);
+router.get('/me', getMe, getUser);
+router.patch('/updateMe', updateMe);
+router.delete('/deleteMe', deleteMe);
+
+// below routes need to be done only by ADMINISTRATOR
+
+router.use(restrictTo('admin'));
+
 router
   .route('/')
   .get(getAllUsers)
