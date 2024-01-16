@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 const AppError = require('./utils/appError');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
@@ -19,19 +20,33 @@ const app = express();
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
-const scriptSrcUrls = ['https://unpkg.com/', 'https://tile.openstreetmap.org'];
-const styleSrcUrls = [
-  'https://unpkg.com/',
-  'https://tile.openstreetmap.org',
-  'https://fonts.googleapis.com/'
-];
-const connectSrcUrls = ['https://unpkg.com', 'https://tile.openstreetmap.org'];
-const fontSrcUrls = ['fonts.googleapis.com', 'fonts.gstatic.com'];
-
 // 1) GLOBAL Middlewares
 //set security HTTP headers
+
+// Further HELMET configuration for Security Policy (CSP)
+const scriptSrcUrls = [
+  'https://api.tiles.mapbox.com/',
+  'https://api.mapbox.com/',
+  'https://*.cloudflare.com'
+];
+const styleSrcUrls = [
+  'https://api.mapbox.com/',
+  'https://api.tiles.mapbox.com/',
+  'https://fonts.googleapis.com/',
+  'https://www.myfonts.com/fonts/radomir-tinkov/gilroy/*'
+];
+const connectSrcUrls = [
+  'https://*.mapbox.com/',
+  'https://*.cloudflare.com',
+  'http://127.0.0.1:8000'
+];
+
+const fontSrcUrls = ['fonts.googleapis.com', 'fonts.gstatic.com'];
+
 app.use(
-  helmet({ crossOriginResourcePolicy: false, crossOriginEmbedderPolicy: false })
+  helmet({
+    crossOriginEmbedderPolicy: false
+  })
 );
 
 app.use(
@@ -43,7 +58,7 @@ app.use(
       styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
       workerSrc: ["'self'", 'blob:'],
       objectSrc: [],
-      imgSrc: ["'self'", 'blob:', 'data:', 'https:'],
+      imgSrc: ["'self'", 'blob:', 'data:'],
       fontSrc: ["'self'", ...fontSrcUrls]
     }
   })
@@ -64,6 +79,9 @@ app.use('/api', limiter);
 
 // body parser
 app.use(express.json());
+
+// cookie parser
+app.use(cookieParser());
 
 // Data sanitization against NOSQL query injection
 app.use(mongoSanitize());
@@ -96,12 +114,6 @@ app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
 });
-
-// app.get('/api/v1/tours', getAllTours);
-// app.get('/api/v1/tours/:id', getTour);
-// app.post('/api/v1/tours', createTour);
-// app.patch('/api/v1/tours/:id', updateTour);
-// app.delete('/api/v1/tours/:id', deleteTour);
 
 app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
