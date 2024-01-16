@@ -3,10 +3,9 @@ extends base
 block append head
   link(rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
     integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="")
-  script(defer src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+  script(src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
     integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
     crossorigin="")
-  script(defer src='/js/mapbox.js')
 
 mixin overviewBox(label, text, icon)
   .overview-box__detail

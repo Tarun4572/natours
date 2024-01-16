@@ -235,3 +235,29 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   //   token
   // });
 });
+
+// only for rendered pages, no errors!!
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+  if (req.cookies.jwt) {
+    // 1) verify token
+    const decoded = await promisify(jwt.verify)(
+      req.cookies.jwt,
+      process.env.JWT_SECRET
+    );
+
+    // 2) check if user still exists
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return next();
+    }
+    // 4) check if user changed password after the jwt was issued
+    if (user.changedPasswordAfter(decoded.iat)) {
+      return next();
+    }
+
+    // There is a logged in user
+    res.locals.user = user;
+    return next();
+  }
+  next();
+});

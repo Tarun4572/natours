@@ -25,20 +25,20 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Further HELMET configuration for Security Policy (CSP)
 const scriptSrcUrls = [
-  'https://api.tiles.mapbox.com/',
-  'https://api.mapbox.com/',
+  'https://unpkg.com/',
+  'https://tile.openstreetmap.org',
   'https://*.cloudflare.com'
 ];
 const styleSrcUrls = [
-  'https://api.mapbox.com/',
-  'https://api.tiles.mapbox.com/',
-  'https://fonts.googleapis.com/',
-  'https://www.myfonts.com/fonts/radomir-tinkov/gilroy/*'
+  'https://unpkg.com/',
+  'https://tile.openstreetmap.org',
+  'https://fonts.googleapis.com/'
 ];
 const connectSrcUrls = [
-  'https://*.mapbox.com/',
+  'https://unpkg.com',
   'https://*.cloudflare.com',
-  'http://127.0.0.1:8000'
+  'http://127.0.0.1:8000',
+  'ws://localhost:51334/'
 ];
 
 const fontSrcUrls = ['fonts.googleapis.com', 'fonts.gstatic.com'];
@@ -58,7 +58,7 @@ app.use(
       styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
       workerSrc: ["'self'", 'blob:'],
       objectSrc: [],
-      imgSrc: ["'self'", 'blob:', 'data:'],
+      imgSrc: ["'self'", 'blob:', 'data:', 'https:'],
       fontSrc: ["'self'", ...fontSrcUrls]
     }
   })
