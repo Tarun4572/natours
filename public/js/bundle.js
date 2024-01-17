@@ -11982,7 +11982,7 @@ var hideAlert = exports.hideAlert = function hideAlert() {
 var showAlert = exports.showAlert = function showAlert(type, message) {
   hideAlert();
   var markup = "<div class=\"alert alert--".concat(type, "\">").concat(message, "</div>");
-  document.querySelector('body').insertAdjacentElement('afterbegin', markup);
+  document.querySelector('body').insertAdjacentHTML('afterbegin', markup);
   window.setTimeout(hideAlert, 5000);
 };
 },{}],"login.js":[function(require,module,exports) {
@@ -12025,13 +12025,14 @@ var login = exports.login = /*#__PURE__*/function () {
             }, 1500);
           }
           console.log(res);
-          _context.next = 11;
+          _context.next = 12;
           break;
         case 8:
           _context.prev = 8;
           _context.t0 = _context["catch"](0);
+          console.log(_context.t0);
           (0, _alerts.showAlert)('error', _context.t0.response.data.message);
-        case 11:
+        case 12:
         case "end":
           return _context.stop();
       }
@@ -12260,7 +12261,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51334" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51245" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

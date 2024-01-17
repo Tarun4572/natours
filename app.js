@@ -38,7 +38,7 @@ const connectSrcUrls = [
   'https://unpkg.com',
   'https://*.cloudflare.com',
   'http://127.0.0.1:8000',
-  'ws://localhost:51334/'
+  'ws://localhost:51245'
 ];
 
 const fontSrcUrls = ['fonts.googleapis.com', 'fonts.gstatic.com'];
