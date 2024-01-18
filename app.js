@@ -38,7 +38,7 @@ const connectSrcUrls = [
   'https://unpkg.com',
   'https://*.cloudflare.com',
   'http://127.0.0.1:8000',
-  'ws://localhost:51245'
+  'ws://localhost:51236'
 ];
 
 const fontSrcUrls = ['fonts.googleapis.com', 'fonts.gstatic.com'];
@@ -79,6 +79,9 @@ app.use('/api', limiter);
 
 // body parser
 app.use(express.json());
+
+// for parsing data from form submission from javascript
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // cookie parser
 app.use(cookieParser());
