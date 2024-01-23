@@ -35,8 +35,13 @@ if (logoutButton) {
 if (userDataForm) {
   userDataForm.addEventListener('submit', e => {
     e.preventDefault();
-    const email = document.getElementById('email').value;
+    const form = new FormData();
     const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    form.append('name', name);
+    form.append('email', email);
+    form.append('photo', document.getElementById('photo').files[0]);
+
     //console.log(name, email);
 
     updateSettings({ name, email }, 'data');

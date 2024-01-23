@@ -7,7 +7,9 @@ const {
   createUser,
   updateMe,
   deleteMe,
-  getMe
+  getMe,
+  uploadUserPhoto,
+  resizeUserPhoto
 } = require('../controllers/userController');
 const {
   signup,
@@ -33,7 +35,7 @@ router.use(protect);
 // protect all routes after this middleware
 router.patch('/updateMyPassword', updatePassword);
 router.get('/me', getMe, getUser);
-router.patch('/updateMe', updateMe);
+router.patch('/updateMe', uploadUserPhoto, resizeUserPhoto, updateMe);
 router.delete('/deleteMe', deleteMe);
 
 // below routes need to be done only by ADMINISTRATOR
