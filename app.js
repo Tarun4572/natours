@@ -11,6 +11,7 @@ const AppError = require('./utils/appError');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const bookingsRouter = require('./routes/bookingRoutes');
 const viewRouter = require('./routes/viewRoutes');
 
 const globalErrorHandler = require('./controllers/errorController');
@@ -27,7 +28,9 @@ app.set('views', path.join(__dirname, 'views'));
 const scriptSrcUrls = [
   'https://unpkg.com/',
   'https://tile.openstreetmap.org',
-  'https://*.cloudflare.com'
+  'https://*.cloudflare.com',
+  'https://*.stripe.com',
+  'https://js.stripe.com'
 ];
 const styleSrcUrls = [
   'https://unpkg.com/',
@@ -38,7 +41,9 @@ const connectSrcUrls = [
   'https://unpkg.com',
   'https://*.cloudflare.com',
   'http://127.0.0.1:8000',
-  'ws://localhost:51236'
+  'ws://localhost:51236',
+  'https://*.stripe.com',
+  'https://js.stripe.com'
 ];
 
 const fontSrcUrls = ['fonts.googleapis.com', 'fonts.gstatic.com'];
@@ -59,7 +64,8 @@ app.use(
       workerSrc: ["'self'", 'blob:'],
       objectSrc: [],
       imgSrc: ["'self'", 'blob:', 'data:', 'https:'],
-      fontSrc: ["'self'", ...fontSrcUrls]
+      fontSrc: ["'self'", ...fontSrcUrls],
+      frameSrc: ["'self'", 'https://*.stripe.com']
     }
   })
 );
@@ -122,6 +128,7 @@ app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingsRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
